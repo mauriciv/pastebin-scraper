@@ -20,15 +20,21 @@ class PastebinSpider(scrapy.Spider):
             print(span_text)
             syntax = ''
             if '|' in span_text:
-                syntax = span_text.split('|')[0].strip() + '/'
+                syntax = span_text.split('|')[0].strip()
+                if not os.path.isdir(f'pastes/{syntax}'):
+                    os.mkdir(f'pastes/{syntax}')
 
             link = li.css('a').attrib['href']
             print('https://pastebin.com/raw' + link)
             with open('urls', 'a') as f:
                 f.write('https://pastebin.com' + link + '\n')
 
+            if syntax is '':
+                filename = f'pastes/' + link.strip('/')
+            else:
+                filename = f'pastes/{syntax}/' + link.strip('/')
+
             title = li.css('a ::text').get()
-            filename = f'pastes/{syntax}' + link.strip('/')
             with open(filename, 'w+') as file:
                 text = get('https://pastebin.com/raw' + link)
                 file.write(title + '\n' + text.text)
